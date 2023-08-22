@@ -5,20 +5,23 @@ using UnityEngine;
 
 public class GameManager : NetworkBehaviour
 {
-    public static GameManager Instance;
+    public static GameManager instance;
+
+    [Header("UI Manager Ref")]
+    public UIManager UIManagerInstance;
 
 
-    public Canvas currentCanvas;
+    [Header("CurrentPlayer")]
+    Player currentPlayerSingle; public Player CurrentPlayerSingle() => currentPlayerSingle;
+
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (instance == null) instance = this;
     }
     // Start is called before the first frame update
     void Start()
     {
-
-
 
     }
 
@@ -33,12 +36,14 @@ public class GameManager : NetworkBehaviour
     public void MyStartClient()
     {
         NetworkManager.Singleton.StartClient();
-        currentCanvas.enabled = false;
+        currentPlayerSingle = NetworkManager.Singleton.ConnectedClients[this.NetworkManager.LocalClientId].PlayerObject.GetComponent<Player>();
+        UIManagerInstance.OpenGameCanvas();
     }
 
     public void MyStartHost()
     {
         NetworkManager.Singleton.StartHost();
-        currentCanvas.enabled = false;
+        currentPlayerSingle = NetworkManager.Singleton.ConnectedClients[0].PlayerObject.GetComponent<Player>();
+        UIManagerInstance.OpenGameCanvas();
     }
 }

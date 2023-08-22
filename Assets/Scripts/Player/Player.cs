@@ -36,15 +36,20 @@ public class Player : NetworkBehaviour
     [SerializeField] Animation state1;
     [SerializeField] Animator m_Animator;
     [SerializeField]
-    enum PlayerAnimationStates
+    enum PlayerAnimStates
     {
         Idle, Walk, Run, Death, Attack, Hit
     }
-    PlayerAnimationStates m_playerAnimationStates = PlayerAnimationStates.Idle;
+    PlayerAnimStates m_playerAnimationStates = PlayerAnimStates.Idle;
 
 
     //Customizable inputs
     [SerializeField] enum PlayerInputs { };
+
+
+    //Manager Refs
+    GameManager refGameManager() { if (GameManager.instance != null) return GameManager.instance; else return null; }
+    UIManager refUIManager() { if (GameManager.instance != null) return GameManager.instance.UIManagerInstance; else return null; }
 
     private void Awake()
     {
@@ -56,7 +61,6 @@ public class Player : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
     }
 
     // Update is called once per frame
@@ -129,4 +133,32 @@ public class Player : NetworkBehaviour
     }
 
     #endregion
+
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (other.GetComponent<IInteractable>() != null)
+        {
+            IInteractable _item = other.GetComponent<IInteractable>();
+            
+                //Vector2 itemPosition = new Vector2(other.transform.position.x, other.transform.position.y);
+                Vector3 itemPosition = other.transform.position;
+                refUIManager().InteractItemButtonActive(_item, itemPosition);
+                //_item.Interact();
+        }
+    }
+
+
+    //Temporary method to test first implementation of clothes changing
+    [SerializeField] GameObject m_ChangeTorsoTemp;
+
+    public void ChangeClothes(GameObject _newClothes)
+    {
+        _newClothes.transform.position = m_ChangeTorsoTemp.transform.position;
+        _newClothes.transform.SetParent(m_ChangeTorsoTemp.transform, false);
+        _newClothes.transform.localPosition = Vector3.zero;
+        _newClothes.GetComponent<SpriteRenderer>().sortingOrder = 9;
+        m_ChangeTorsoTemp.GetComponent<SpriteRenderer>().enabled = false;
+
+    }
 }
